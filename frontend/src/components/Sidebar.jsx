@@ -24,6 +24,7 @@ function Sidebar({ onStartScraping }) {
   const [method, setMethod] = useState("");
   const [url, setUrl] = useState("");
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleClear = () => {
     setProvider("");
@@ -31,6 +32,37 @@ function Sidebar({ onStartScraping }) {
     setMethod("");
     setUrl("");
     setQuery("");
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("http://localhost:8000/scrape", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          provider,
+          model,
+          method,
+          url,
+          query,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        onStartScraping(); // Notify parent component
+      } else {
+        console.error("Scraping failed:", data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,9 +163,10 @@ function Sidebar({ onStartScraping }) {
             background: "linear-gradient(90deg,#007fff 0%,#0059b2 100%)",
             textTransform: "none",
           }}
-          onClick={onStartScraping}
+          onClick={handleSubmit}
+          disabled={loading || !provider || !model || !method || !url || !query}
         >
-          Start Scraping
+          {loading ? "Processing..." : "Start Scraping"}
         </Button>
         <Button
           variant="outlined"
@@ -147,6 +180,7 @@ function Sidebar({ onStartScraping }) {
             "&:hover": { borderColor: "#007fff", color: "#fff" },
           }}
           onClick={handleClear}
+          disabled={loading}
         >
           Clear
         </Button>
