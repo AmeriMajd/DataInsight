@@ -52,11 +52,25 @@ function Sidebar({ onStartScraping }) {
       });
 
       const data = await response.json();
+      console.log("Response data:", data); // Debug log
 
-      if (data.status === "success") {
-        onStartScraping(); // Notify parent component
-      } else {
-        console.error("Scraping failed:", data.message);
+      if (data.status === "success" && data.data) {
+        const { preview, csv, json, excel } = data.data;
+
+        // Create blobs for download
+        const csvBlob = new Blob([csv], { type: "text/csv" });
+        const jsonBlob = new Blob([json], { type: "application/json" });
+        const excelBlob = new Blob([excel], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        // Pass both preview and blobs to parent
+        onStartScraping({
+          preview,
+          csvBlob,
+          jsonBlob,
+          excelBlob,
+        });
       }
     } catch (error) {
       console.error("Error:", error);

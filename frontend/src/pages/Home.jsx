@@ -6,10 +6,11 @@ import Footer from "../components/Footer";
 import Main from "../components/Main";
 
 function Home() {
-  const [isCleared, setIsCleared] = useState(false);
+  const [scrapedData, setScrapedData] = useState(null);
 
-  const handleStartScraping = () => {
-    setIsCleared(true);
+  const handleStartScraping = (data) => {
+    console.log("Home received data:", data); // Debug log
+    setScrapedData(data);
   };
 
   return (
@@ -21,7 +22,7 @@ function Home() {
           component="main"
           sx={{ flex: 1, p: 3, bgcolor: "background.default" }}
         >
-          <Main isCleared={isCleared} />
+          <Main scrapedData={scrapedData} />
         </Box>
       </Box>
       <Footer />
