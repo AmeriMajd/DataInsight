@@ -58,9 +58,17 @@ function Sidebar({ onStartScraping }) {
         const { preview, csv, json, excel } = data.data;
 
         // Create blobs for download
-        const csvBlob = new Blob([csv], { type: "text/csv" });
-        const jsonBlob = new Blob([json], { type: "application/json" });
-        const excelBlob = new Blob([excel], {
+        const csvBlob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const jsonBlob = new Blob([json], { type: "application/json;charset=utf-8;" });
+
+        // Decode base64 Excel string and create blob
+        const byteCharacters = atob(excel);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const excelBlob = new Blob([byteArray], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
 

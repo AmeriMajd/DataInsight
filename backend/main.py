@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
-from io import StringIO
+from io import StringIO, BytesIO
+import base64
 from utils.scraper import WebScraper
 from utils.llm_provider import LLMProvider
 
@@ -53,13 +54,25 @@ async def scrape(request: ScraperRequest):
         # 4. Convert to DataFrame
         df = pd.read_csv(StringIO(csv_content))
         
+        # 5. Prepare data for response
+        preview_data = df.head().to_dict(orient="records")
+        json_data = df.to_json(orient="records")
+
+        # For Excel, write to a BytesIO buffer and then base64 encode
+        excel_io = BytesIO()
+        with pd.ExcelWriter(excel_io, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Sheet1')
+        excel_io.seek(0)
+        excel_base64 = base64.b64encode(excel_io.read()).decode('utf-8')
+
         return {
             "status": "success",
             "message": "Scraping completed",
             "data": {
+                "preview": preview_data,
                 "csv": csv_content,
-                "json": df.to_json(orient="records"),
-                "excel": df.to_excel()
+                "json": json_data,
+                "excel": excel_base64  # Send as base64 string
             }
         }
     except Exception as e:

@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+pandas
+selenium
+requests
+html2text
+python-multipart
+xlsxwriter
+# Add other LLM provider specific dependencies if not already managed elsewhere
+# e.g., ollama, sambanova-sdk
+# For now, assuming they are handled or not strictly needed for this part of the flow.
